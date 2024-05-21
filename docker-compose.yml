@@ -1,0 +1,49 @@
+version: "3.8"
+volumes:
+  db-store:
+  db-testing-store:
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    ports:
+      - ${WEB_PORT:-80}:80
+      - "5173:5173"
+    volumes:
+      - .:/work/backend
+    environment:
+      - COMPOSER_MEMORY_LIMIT=-1 //-1 means unlimited
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: "db"
+      UPLOAD_LIMIT: 512M
+    ports:
+      - "127.0.0.1:8080:80"
+    mem_limit: 512m
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/mysql/Dockerfile
+    ports:
+      - "13306:3306"
+    volumes:
+      - db-store:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=db
+
+  db-testing:
+    build:
+      context: .
+      dockerfile: ./docker/mysql/Dockerfile
+    ports:
+      - ${DB_TESTING_PORT:-13307}:3306
+    volumes:
+      - db-testing-store:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=test
