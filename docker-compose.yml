@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: ./docker/php/Dockerfile
     ports:
-      - ${WEB_PORT:-80}:80
+      - ${WEB_PORT:-8000}:80
       - "5173:5173"
     volumes:
       - .:/work/backend
